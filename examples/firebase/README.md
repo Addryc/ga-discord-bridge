@@ -30,20 +30,26 @@ invocation costs effectively nothing, and the GA4 Data API quota is free.
    Do **not** set `GOOGLE_APPLICATION_CREDENTIALS` — on Cloud Functions the
    bridge uses the runtime service account automatically.
 
-4. **The webhook URL is a secret** — store it in Secret Manager:
+4. **The webhook URL is a secret** — store it in Secret Manager
+   (interactive prompt, or pipe it with `--data-file=-`):
 
    ```bash
    firebase functions:secrets:set DISCORD_WEBHOOK_URL
+   # or, non-interactively:
+   printf '%s' "$WEBHOOK_URL" | firebase functions:secrets:set DISCORD_WEBHOOK_URL --data-file=-
    ```
 
    The `secrets=["DISCORD_WEBHOOK_URL"]` binding in the decorator injects it
-   at runtime.
+   at runtime; the deploy grants the runtime service account access to the
+   secret automatically.
 
-5. **Grant GA access to the function's service account.** Find the runtime
-   service account (default: `PROJECT_ID@appspot.gserviceaccount.com`; 2nd
-   gen may use the compute default `PROJECT_NUMBER-compute@developer.gserviceaccount.com` —
-   check the function's details page). Then in **GA Admin → Property access
-   management**, add that email with the **Viewer** role. Also make sure the
+5. **Grant GA access to the function's service account.** 2nd-gen functions
+   run as the **compute default** service account:
+   `PROJECT_NUMBER-compute@developer.gserviceaccount.com` (the project
+   *number*, not id — it's printed in the deploy output, or run
+   `gcloud projects describe PROJECT_ID --format='value(projectNumber)'`).
+   In **GA Admin → Property access management**, add that email with the
+   **Viewer** role (grants propagate in about a minute). Also make sure the
    **Google Analytics Data API** is enabled on the GCP project:
 
    ```bash
@@ -56,15 +62,27 @@ invocation costs effectively nothing, and the GA4 Data API quota is free.
    firebase deploy --only functions:daily_analytics_digest
    ```
 
+   The first deploy enables several APIs (Cloud Run, Eventarc, Cloud
+   Scheduler, Pub/Sub) automatically and may warn about a missing container
+   image **cleanup policy** — set one so old images don't accumulate a small
+   storage bill:
+
+   ```bash
+   firebase functions:artifacts:setpolicy --location us-central1 --days 3 --force
+   ```
+
 ## Verifying
 
-Force a run without waiting for the schedule:
+Force a run without waiting for the schedule (the job is named
+`firebase-schedule-<function>-<region>`):
 
 ```bash
-gcloud scheduler jobs list --location=us-central1   # find the job name
-gcloud scheduler jobs run <job-name> --location=us-central1
+gcloud scheduler jobs run firebase-schedule-daily_analytics_digest-us-central1 --location=us-central1
 ```
 
-Then check the channel for the embed and `firebase functions:log` for
-errors. A `403 … check that the service account has Viewer access` error
-means step 5 is incomplete (grants take ~a minute to propagate).
+Then check the channel for the embed. In logs, a healthy run is an HTTP 200
+in a couple of seconds plus an INFO line `Posted GA digest for YYYY-MM-DD`
+(that line needs the `logging.basicConfig` from `main.py` — without it,
+successful runs look empty in Cloud Logging). A
+`403 … check that the service account has Viewer access` error means step 5
+is incomplete (grants take ~a minute to propagate).

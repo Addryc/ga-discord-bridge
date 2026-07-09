@@ -9,9 +9,16 @@ Auth note: no key file anywhere. The function's runtime service account
 metadata server; grant *that* account Viewer on the GA4 property.
 """
 
+import logging
+
 from firebase_functions import scheduler_fn
 
 from ga_discord_bridge import run_from_env
+
+# The bridge logs its outcome ("Posted GA digest for …") at INFO; without
+# this, Python's default WARNING threshold swallows it and successful runs
+# look empty in Cloud Logging.
+logging.basicConfig(level=logging.INFO)
 
 
 @scheduler_fn.on_schedule(
