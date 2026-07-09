@@ -1,0 +1,3 @@
+# Cloud Functions for Firebase (Python runtime) dependencies.
+firebase-functions>=0.4
+ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge

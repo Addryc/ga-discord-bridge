@@ -1,0 +1,45 @@
+{
+  "title": "Site analytics — 2026-07-07",
+  "description": "**12** users · **15** sessions · **48** pageviews (deltas vs prior day)",
+  "color": 14906368,
+  "fields": [
+    {
+      "name": "Users",
+      "value": "**12** (▲ 3)",
+      "inline": true
+    },
+    {
+      "name": "Sessions",
+      "value": "**15** (▲ 4)",
+      "inline": true
+    },
+    {
+      "name": "Pageviews",
+      "value": "**48** (▼ 5)",
+      "inline": true
+    },
+    {
+      "name": "New users",
+      "value": "**4** (— flat)",
+      "inline": true
+    },
+    {
+      "name": "Top pages",
+      "value": "1. `/` — 18\n2. `/scoreboard` — 11\n3. `/autopsy/42` — 6",
+      "inline": false
+    },
+    {
+      "name": "Top channels",
+      "value": "1. Direct — 9\n2. Organic Search — 4\n3. Referral — 2",
+      "inline": false
+    },
+    {
+      "name": "Top events",
+      "value": "1. page_view — 48\n2. session_start — 15\n3. proposal_viewed — 7",
+      "inline": false
+    }
+  ],
+  "footer": {
+    "text": "ga_digest.v1"
+  }
+}

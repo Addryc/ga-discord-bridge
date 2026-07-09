@@ -1,0 +1,12 @@
+{
+  "dimensionHeaders": [{ "name": "sessionDefaultChannelGroup" }],
+  "metricHeaders": [{ "name": "sessions", "type": "TYPE_INTEGER" }],
+  "rows": [
+    { "dimensionValues": [{ "value": "Direct" }], "metricValues": [{ "value": "9" }] },
+    { "dimensionValues": [{ "value": "Organic Search" }], "metricValues": [{ "value": "4" }] },
+    { "dimensionValues": [{ "value": "Referral" }], "metricValues": [{ "value": "2" }] }
+  ],
+  "rowCount": 3,
+  "metadata": { "currencyCode": "USD", "timeZone": "America/New_York" },
+  "kind": "analyticsData#runReport"
+}

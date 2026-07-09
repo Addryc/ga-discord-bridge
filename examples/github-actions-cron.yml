@@ -1,0 +1,35 @@
+# Zero-infrastructure alternative: run the digest from a GitHub Actions
+# schedule. Copy into .github/workflows/ of any repo (this one works) and add
+# two repository secrets: GA_SERVICE_ACCOUNT_JSON (the key file's *contents*)
+# and DISCORD_WEBHOOK_URL. Set GA_PROPERTY_ID / GA_PROPERTY_TIMEZONE below.
+#
+# Note: GitHub cron is best-effort and runs in UTC; schedule an hour or two
+# after the property's midnight so GA has finished the day.
+
+name: Daily analytics digest
+
+on:
+  schedule:
+    - cron: "0 8 * * *" # 08:00 UTC daily
+  workflow_dispatch: {} # allow manual runs for testing
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the bridge
+        run: pip install "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge"
+      - name: Write the service-account key
+        run: printf '%s' "$GA_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/sa.json"
+        env:
+          GA_SERVICE_ACCOUNT_JSON: ${{ secrets.GA_SERVICE_ACCOUNT_JSON }}
+      - name: Post the digest
+        run: python -m ga_discord_bridge
+        env:
+          GA_PROPERTY_ID: "123456789" # ← your numeric property id
+          GA_PROPERTY_TIMEZONE: "UTC" # ← your property's reporting time zone
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

@@ -1,0 +1,32 @@
+{
+  "dimensionHeaders": [{ "name": "dateRange" }],
+  "metricHeaders": [
+    { "name": "activeUsers", "type": "TYPE_INTEGER" },
+    { "name": "sessions", "type": "TYPE_INTEGER" },
+    { "name": "screenPageViews", "type": "TYPE_INTEGER" },
+    { "name": "newUsers", "type": "TYPE_INTEGER" }
+  ],
+  "rows": [
+    {
+      "dimensionValues": [{ "value": "date_range_0" }],
+      "metricValues": [
+        { "value": "12" },
+        { "value": "15" },
+        { "value": "48" },
+        { "value": "4" }
+      ]
+    },
+    {
+      "dimensionValues": [{ "value": "date_range_1" }],
+      "metricValues": [
+        { "value": "9" },
+        { "value": "11" },
+        { "value": "53" },
+        { "value": "4" }
+      ]
+    }
+  ],
+  "rowCount": 2,
+  "metadata": { "currencyCode": "USD", "timeZone": "America/New_York" },
+  "kind": "analyticsData#runReport"
+}

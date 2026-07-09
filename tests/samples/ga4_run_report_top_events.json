@@ -1,0 +1,12 @@
+{
+  "dimensionHeaders": [{ "name": "eventName" }],
+  "metricHeaders": [{ "name": "eventCount", "type": "TYPE_INTEGER" }],
+  "rows": [
+    { "dimensionValues": [{ "value": "page_view" }], "metricValues": [{ "value": "48" }] },
+    { "dimensionValues": [{ "value": "session_start" }], "metricValues": [{ "value": "15" }] },
+    { "dimensionValues": [{ "value": "proposal_viewed" }], "metricValues": [{ "value": "7" }] }
+  ],
+  "rowCount": 3,
+  "metadata": { "currencyCode": "USD", "timeZone": "America/New_York" },
+  "kind": "analyticsData#runReport"
+}

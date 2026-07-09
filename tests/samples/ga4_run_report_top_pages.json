@@ -1,0 +1,12 @@
+{
+  "dimensionHeaders": [{ "name": "pagePath" }],
+  "metricHeaders": [{ "name": "screenPageViews", "type": "TYPE_INTEGER" }],
+  "rows": [
+    { "dimensionValues": [{ "value": "/" }], "metricValues": [{ "value": "18" }] },
+    { "dimensionValues": [{ "value": "/scoreboard" }], "metricValues": [{ "value": "11" }] },
+    { "dimensionValues": [{ "value": "/autopsy/42" }], "metricValues": [{ "value": "6" }] }
+  ],
+  "rowCount": 3,
+  "metadata": { "currencyCode": "USD", "timeZone": "America/New_York" },
+  "kind": "analyticsData#runReport"
+}
