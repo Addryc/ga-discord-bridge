@@ -5,6 +5,23 @@ Scheduler is provisioned automatically by the deploy. Requires the **Blaze**
 plan (scheduled functions + outbound calls to Discord), but a daily
 invocation costs effectively nothing, and the GA4 Data API quota is free.
 
+## Who can deploy (permissions)
+
+Project **Owner** covers everything. If you're deploying into someone else's
+project with scoped roles, you need all four — learned from real deploys:
+
+| Role | Why |
+|---|---|
+| **Editor** | build + deploy, enable APIs, Cloud Scheduler |
+| **Cloud Functions Admin** | the deploy's final step grants Cloud Scheduler permission to *invoke* the function — an IAM change Editor can't make (the deploy fails with `Failed to set the IAM Policy on the Service…` and rolls back cleanly) |
+| **Secret Manager Admin** | creating the webhook secret *and* granting the runtime service account access to it |
+| **Service Account User** | the function runs as the project's compute service account |
+
+If your project has other functions or extensions, put this one in its own
+[functions codebase](https://firebase.google.com/docs/functions/organize-functions)
+(`"codebase": "ga-digest"` in `firebase.json`) — deploys are then strictly
+scoped and cannot touch anything outside it.
+
 ## One-time setup
 
 1. **Initialize Python functions** in your Firebase project (skip if you
