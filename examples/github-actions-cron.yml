@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install the bridge
-        run: pip install "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge"
+        run: pip install "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge@v0.1.0"
       - name: Write the service-account key
         run: printf '%s' "$GA_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/sa.json"
         env:

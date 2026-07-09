@@ -1,3 +1,4 @@
 # Cloud Functions for Firebase (Python runtime) dependencies.
+# Pin the bridge to a release tag so deploys are reproducible.
 firebase-functions>=0.4
-ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge
+ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge@v0.1.0

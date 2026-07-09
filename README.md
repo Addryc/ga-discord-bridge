@@ -60,13 +60,35 @@ GA4 ─────────────────────────�
 GA finishes processing a day overnight, so yesterday-there is the freshest
 complete day. A day with no traffic posts zeros and "none", not an error.
 
+## Install
+
+Versioned by git tag — pin a release tag from the consumer's `pyproject.toml`:
+
+```toml
+dependencies = [
+  "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge@v0.1.0",
+]
+```
+
+or with pip directly:
+
+```bash
+pip install "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge@v0.1.0"
+```
+
+For local development of the package itself, use an editable install:
+
+```bash
+pip install -e /path/to/ga-discord-bridge
+```
+
 ## Quickstart (local)
 
 Prereqs: Python ≥ 3.11, a GA4 property, a Discord channel you can add a
 webhook to. Full GA setup steps are in the next section.
 
 ```bash
-pip install "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge"
+pip install "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge@v0.1.0"
 
 export GA_PROPERTY_ID=123456789                        # numeric, from GA Admin
 export GA_PROPERTY_TIMEZONE=UTC                        # match the property

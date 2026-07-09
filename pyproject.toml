@@ -3,7 +3,7 @@ name = "ga-discord-bridge"
 version = "0.1.0"
 description = "Post a daily Google Analytics 4 digest to a Discord channel — small, dependency-light, Cloud Function friendly."
 readme = "README.md"
-license = { file = "LICENSE" }
+license = { text = "MIT" }
 authors = [{ name = "Addryc" }]
 requires-python = ">=3.11"
 keywords = ["google-analytics", "ga4", "discord", "webhook", "digest", "cloud-functions"]
@@ -37,11 +37,11 @@ Issues = "https://github.com/Addryc/ga-discord-bridge/issues"
 ga-discord-bridge = "ga_discord_bridge.__main__:main"
 
 [build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.hatch.build.targets.wheel]
+packages = ["src/ga_discord_bridge"]
 
 [tool.ruff]
 line-length = 100
