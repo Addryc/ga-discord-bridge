@@ -62,36 +62,65 @@ def run_from_env(
     dry_run: bool = False,
     config: Config | None = None,
     emit: Callable[[str], None] = print,
+    report_errors: bool = False,
+    analytics: AnalyticsSource | None = None,
+    sink: EmbedSink | None = None,
 ) -> DailyDigest:
     """Wire real clients from the environment and run once.
 
     ``dry_run`` fetches from GA but prints the embed JSON via ``emit``
     instead of posting to Discord — useful for checking credentials and
     output shape without touching the channel.
+
+    ``report_errors`` posts a small red "GA digest failed" embed to the
+    webhook when the run raises (then re-raises, so schedulers/logs still see
+    the failure). If Discord itself is what's broken, the report attempt is
+    swallowed so the original error is never masked. Recommended for
+    scheduled deployments — without it, a broken digest is only visible in
+    server logs nobody watches.
+
+    ``analytics`` / ``sink`` override the env-built clients (custom sinks,
+    tests); when provided, the caller owns their lifecycle.
     """
     import json
+    from contextlib import ExitStack
 
     from ga_discord_bridge.discord import DiscordWebhookClient
     from ga_discord_bridge.errors import ConfigError
+    from ga_discord_bridge.format import format_error_embed
     from ga_discord_bridge.ga4 import Ga4Client
 
     active_config = config or Config.from_env()
-    if not dry_run and not active_config.webhook_url:
+    if not dry_run and sink is None and not active_config.webhook_url:
         raise ConfigError("DISCORD_WEBHOOK_URL is required (or run with --dry-run)")
     digest_day = day or resolve_digest_day(active_config.property_timezone)
 
-    if active_config.service_account_json is not None:
-        analytics = Ga4Client.from_service_account_file(
-            active_config.service_account_json,
-            property_id=active_config.property_id,
-        )
-    else:
-        analytics = Ga4Client.from_metadata_server(property_id=active_config.property_id)
+    with ExitStack() as stack:
+        if analytics is None:
+            if active_config.service_account_json is not None:
+                analytics = stack.enter_context(
+                    Ga4Client.from_service_account_file(
+                        active_config.service_account_json,
+                        property_id=active_config.property_id,
+                    )
+                )
+            else:
+                analytics = stack.enter_context(
+                    Ga4Client.from_metadata_server(property_id=active_config.property_id)
+                )
+        if sink is None and not dry_run:
+            sink = stack.enter_context(DiscordWebhookClient(active_config.webhook_url))
 
-    with analytics:
-        if dry_run:
-            digest = analytics.fetch_daily_digest(digest_day)
-            emit(json.dumps(format_daily_digest_embed(digest), indent=2, ensure_ascii=False))
-            return digest
-        with DiscordWebhookClient(active_config.webhook_url) as sink:
+        try:
+            if dry_run:
+                digest = analytics.fetch_daily_digest(digest_day)
+                emit(json.dumps(format_daily_digest_embed(digest), indent=2, ensure_ascii=False))
+                return digest
             return run_digest_once(analytics, sink, day=digest_day)
+        except Exception as exc:
+            if report_errors and sink is not None and not dry_run:
+                try:
+                    sink.post_embed(format_error_embed(exc, digest_day))
+                except Exception:
+                    logger.exception("Could not report the digest failure to Discord")
+            raise

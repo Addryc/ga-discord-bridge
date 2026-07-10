@@ -97,7 +97,10 @@ Force a run without waiting for the schedule (the job is named
 gcloud scheduler jobs run firebase-schedule-daily_analytics_digest-us-central1 --location=us-central1
 ```
 
-Then check the channel for the embed. In logs, a healthy run is an HTTP 200
+Then check the channel for the embed. Because the example passes
+`report_errors=True`, a *failed* run also shows up in the channel as a red
+"GA digest failed" embed carrying the error message — the channel itself is
+your monitor. In logs, a healthy run is an HTTP 200
 in a couple of seconds plus an INFO line `Posted GA digest for YYYY-MM-DD`
 (that line needs the `logging.basicConfig` from `main.py` — without it,
 successful runs look empty in Cloud Logging). A

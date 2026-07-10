@@ -26,10 +26,10 @@ from ga_discord_bridge.errors import (
     DiscordWebhookResponseError,
     DiscordWebhookTransportError,
 )
-from ga_discord_bridge.format import format_daily_digest_embed
+from ga_discord_bridge.format import format_daily_digest_embed, format_error_embed
 from ga_discord_bridge.ga4 import Ga4Client
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "AnalyticsAuthError",
@@ -48,6 +48,7 @@ __all__ = [
     "Ga4Client",
     "RankedRow",
     "format_daily_digest_embed",
+    "format_error_embed",
     "resolve_digest_day",
     "run_digest_once",
     "run_from_env",

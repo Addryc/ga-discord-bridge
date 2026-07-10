@@ -34,4 +34,4 @@ logging.basicConfig(level=logging.INFO)
 def daily_analytics_digest(event: scheduler_fn.ScheduledEvent) -> None:
     # GA_PROPERTY_ID / GA_PROPERTY_TIMEZONE come from functions/.env (see
     # README); DISCORD_WEBHOOK_URL is injected by the secrets binding above.
-    run_from_env()
+    run_from_env(report_errors=True)

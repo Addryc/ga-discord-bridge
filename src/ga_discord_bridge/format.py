@@ -13,9 +13,12 @@ render "none"; a zero-traffic day renders zeros, not an error.
 
 from __future__ import annotations
 
+from datetime import date
+
 from ga_discord_bridge.domain import DailyDigest, RankedRow
 
 EMBED_COLOR = 0xE37400  # analytics orange
+ERROR_EMBED_COLOR = 0xE74C3C  # red
 
 # Discord's hard limits; text is clamped, never rejected.
 DISCORD_DESCRIPTION_LIMIT = 4096
@@ -76,6 +79,26 @@ def format_daily_digest_embed(digest: DailyDigest) -> dict[str, object]:
         "description": _clamp_embed_text(description, DISCORD_DESCRIPTION_LIMIT),
         "color": EMBED_COLOR,
         "fields": fields,
+        "footer": {"text": EMBED_CONTRACT_VERSION},
+    }
+
+
+def format_error_embed(error: BaseException, day: date | None = None) -> dict[str, object]:
+    """A small red embed reporting a failed digest run.
+
+    Posted by ``run_from_env(report_errors=True)`` so a broken run is visible
+    in the channel instead of only in server logs. Carries the error type and
+    message — enough to act on (the bridge's error messages name their fix),
+    with the full traceback still in the runtime's logs.
+    """
+    suffix = f" — {day.isoformat()}" if day is not None else ""
+    description = _clamp_embed_text(
+        f"`{type(error).__name__}`: {error}", DISCORD_DESCRIPTION_LIMIT
+    )
+    return {
+        "title": f"GA digest failed{suffix}",
+        "description": description,
+        "color": ERROR_EMBED_COLOR,
         "footer": {"text": EMBED_CONTRACT_VERSION},
     }
 

@@ -43,6 +43,10 @@ events. That's the whole product.
 - **Keyless on GCP.** On Cloud Functions / Cloud Run / GCE it authenticates
   via the runtime service account (metadata server) — no key file to manage.
   Off GCP, point `GOOGLE_APPLICATION_CREDENTIALS` at a key file.
+- **Failures are visible in the channel.** With `report_errors=True`
+  (default in the deploy examples), a broken run posts a red "GA digest
+  failed" embed with the error message to the same webhook — instead of
+  dying silently in server logs — and still re-raises for the scheduler.
 - **Fully offline test suite.** Recorded GA4 API responses and a golden
   embed fixture pin the whole pipeline; CI needs zero credentials.
 
@@ -66,14 +70,14 @@ Versioned by git tag — pin a release tag from the consumer's `pyproject.toml`:
 
 ```toml
 dependencies = [
-  "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge@v0.1.0",
+  "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge@v0.2.0",
 ]
 ```
 
 or with pip directly:
 
 ```bash
-pip install "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge@v0.1.0"
+pip install "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge@v0.2.0"
 ```
 
 For local development of the package itself, use an editable install:
@@ -88,7 +92,7 @@ Prereqs: Python ≥ 3.11, a GA4 property, a Discord channel you can add a
 webhook to. Full GA setup steps are in the next section.
 
 ```bash
-pip install "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge@v0.1.0"
+pip install "ga-discord-bridge @ git+https://github.com/Addryc/ga-discord-bridge@v0.2.0"
 
 export GA_PROPERTY_ID=123456789                        # numeric, from GA Admin
 export GA_PROPERTY_TIMEZONE=UTC                        # match the property

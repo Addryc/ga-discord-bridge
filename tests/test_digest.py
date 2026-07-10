@@ -11,8 +11,12 @@ import pytest
 from ga_discord_bridge.config import Config
 from ga_discord_bridge.digest import resolve_digest_day, run_digest_once, run_from_env
 from ga_discord_bridge.discord import DiscordWebhookClient
-from ga_discord_bridge.errors import ConfigError, DiscordWebhookResponseError
-from ga_discord_bridge.format import format_daily_digest_embed
+from ga_discord_bridge.errors import (
+    AnalyticsAuthError,
+    ConfigError,
+    DiscordWebhookResponseError,
+)
+from ga_discord_bridge.format import ERROR_EMBED_COLOR, format_daily_digest_embed
 from tests.conftest import SAMPLE_DAY, make_sample_digest
 
 
@@ -59,6 +63,80 @@ def test_webhook_rejection_is_wrapped():
 
 def test_resolve_digest_day_uses_property_timezone():
     assert resolve_digest_day("UTC", today=date(2026, 7, 8)) == date(2026, 7, 7)
+
+
+class FailingAnalytics:
+    def fetch_daily_digest(self, day: date):
+        raise AnalyticsAuthError("service account lacks Viewer access")
+
+
+class RecordingSink:
+    def __init__(self, fail: bool = False):
+        self.fail = fail
+        self.embeds: list[dict] = []
+
+    def post_embed(self, embed: dict) -> None:
+        if self.fail:
+            raise DiscordWebhookResponseError("webhook is broken")
+        self.embeds.append(embed)
+
+
+class TestErrorReporting:
+    def test_failure_posts_error_embed_and_reraises(self):
+        sink = RecordingSink()
+
+        with pytest.raises(AnalyticsAuthError):
+            run_from_env(
+                config=Config(property_id="123456"),
+                analytics=FailingAnalytics(),
+                sink=sink,
+                day=SAMPLE_DAY,
+                report_errors=True,
+            )
+
+        assert len(sink.embeds) == 1
+        embed = sink.embeds[0]
+        assert embed["title"] == f"GA digest failed — {SAMPLE_DAY.isoformat()}"
+        assert "AnalyticsAuthError" in embed["description"]
+        assert "Viewer access" in embed["description"]
+        assert embed["color"] == ERROR_EMBED_COLOR
+
+    def test_report_errors_off_posts_nothing(self):
+        sink = RecordingSink()
+
+        with pytest.raises(AnalyticsAuthError):
+            run_from_env(
+                config=Config(property_id="123456"),
+                analytics=FailingAnalytics(),
+                sink=sink,
+                day=SAMPLE_DAY,
+            )
+
+        assert sink.embeds == []
+
+    def test_broken_webhook_never_masks_the_original_error(self):
+        with pytest.raises(AnalyticsAuthError):
+            run_from_env(
+                config=Config(property_id="123456"),
+                analytics=FailingAnalytics(),
+                sink=RecordingSink(fail=True),
+                day=SAMPLE_DAY,
+                report_errors=True,
+            )
+
+    def test_success_posts_only_the_digest(self):
+        sink = RecordingSink()
+
+        run_from_env(
+            config=Config(property_id="123456"),
+            analytics=FakeAnalytics(),
+            sink=sink,
+            day=SAMPLE_DAY,
+            report_errors=True,
+        )
+
+        assert len(sink.embeds) == 1
+        assert sink.embeds[0]["title"].startswith("Site analytics")
 
 
 class TestConfig:

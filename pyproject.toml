@@ -1,6 +1,6 @@
 [project]
 name = "ga-discord-bridge"
-version = "0.1.0"
+version = "0.2.0"
 description = "Post a daily Google Analytics 4 digest to a Discord channel — small, dependency-light, Cloud Function friendly."
 readme = "README.md"
 license = { text = "MIT" }
